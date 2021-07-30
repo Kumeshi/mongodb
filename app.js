@@ -1,6 +1,8 @@
 const Express = require("express");
 const bodyParser = require("body-parser");
 const MongoClient = require("mongodb").MongoClient;
+const {ObjectId} = require("mongodb");
+const { response } = require("express");
 
 const CONNECTION_URL = 'mongodb://127.0.0.1:27017';
 const DATABASE_NAME = "Details";
@@ -22,12 +24,11 @@ app.listen(5000, () => {
         console.log("Connected to `" + DATABASE_NAME + "`!");
     });
 });
-app.put("/CustomerDetails", (request, response) => {
-    let id = request.query.id;
-    collection.findOneAndUpdate({ _id: id },
+app.put("/CustomerDetails/:id", (request, response) => {
+    const update = collection.findOneAndUpdate({ _id: ObjectId(request.params.id) },
         { $set: request.body },
-        { new: true, upsert: true, returnOriginal: false });
-    response.status(200).send(true)
+    )
+    response.send(update)
 });
 
 app.get("/CustomerDetails", (request, response) => {
@@ -47,3 +48,8 @@ app.post("/CustomerDetails", (request, response) => {
         response.send(result.result);
     });
 });
+app.delete("/CustomerDetails/:id",(request,response)=>{
+    const dele = collection.deleteOne(
+        { _id: ObjectId(request.params.id)})
+        response.send(dele);
+    })
